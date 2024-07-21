@@ -216,6 +216,103 @@ inline e2_message generate_ric_control_request_style2_action6(srslog::basic_logg
   return e2_msg;
 }
 
+inline e2_message generate_ric_control_request_style3_action1(srslog::basic_logger& logger)
+{
+  using namespace asn1::e2ap;
+  e2_message  e2_msg;
+  init_msg_s& initmsg = e2_msg.pdu.set_init_msg();
+  initmsg.load_info_obj(ASN1_E2AP_ID_RIC_CTRL);
+
+  ric_ctrl_request_s& ric_control_request           = initmsg.value.ric_ctrl_request();
+  ric_control_request->ric_call_process_id_present  = false;
+  ric_control_request->ric_ctrl_ack_request_present = true;
+  ric_control_request->ric_ctrl_ack_request.value   = ric_ctrl_ack_request_e::options::ack;
+
+  ric_control_request->ran_function_id                 = 3;
+  ric_control_request->ric_request_id.ric_requestor_id = 3;
+  ric_control_request->ric_request_id.ric_instance_id  = 0;
+
+  asn1::e2sm::e2sm_rc_ctrl_hdr_s ctrl_hdr;
+  ctrl_hdr.ric_ctrl_hdr_formats.set_ctrl_hdr_format1();
+  ctrl_hdr.ric_ctrl_hdr_formats.ctrl_hdr_format1().ric_ctrl_decision_present = false;
+  ctrl_hdr.ric_ctrl_hdr_formats.ctrl_hdr_format1().ric_style_type            = 3;
+  ctrl_hdr.ric_ctrl_hdr_formats.ctrl_hdr_format1().ric_ctrl_action_id        = 1;
+  ctrl_hdr.ric_ctrl_hdr_formats.ctrl_hdr_format1().ue_id.set_gnb_ue_id();
+  ctrl_hdr.ric_ctrl_hdr_formats.ctrl_hdr_format1().ue_id.gnb_du_ue_id().gnb_cu_ue_f1ap_id = 4;
+
+  srsran::byte_buffer ctrl_hdr_buff;
+  asn1::bit_ref       bref_msg(ctrl_hdr_buff);
+  if (ctrl_hdr.pack(bref_msg) != asn1::SRSASN_SUCCESS) {
+    logger.error("Failed to pack E2SM RC control header\n");
+  }
+
+  bool ret = ric_control_request->ric_ctrl_hdr.resize(ctrl_hdr_buff.length());
+  (void)ret;
+  std::copy(ctrl_hdr_buff.begin(), ctrl_hdr_buff.end(), ric_control_request->ric_ctrl_hdr.begin());
+
+  asn1::e2sm::e2sm_rc_ctrl_msg_s ctrl_msg;
+  ctrl_msg.ric_ctrl_msg_formats.set_ctrl_msg_format1();
+  ctrl_msg.ric_ctrl_msg_formats.ctrl_msg_format1().ran_p_list.resize(1);
+
+  //1, Target Primary Cell ID
+  auto& targetPrimaryCellId = ctrl_msg.ric_ctrl_msg_formats.ctrl_msg_format1().ran_p_list[0];
+  targetPrimaryCellId.ran_param_id = 1;
+  targetPrimaryCellId.ran_param_value_type.set_ran_p_choice_structure().ran_param_structure.seq_of_ran_params.resize(1);
+
+  //2, CHOICE Target Cell
+  auto& choiceTargetCell = targetPrimaryCellId.ran_param_value_type.ran_p_choice_structure().ran_param_structure.seq_of_ran_params[0];
+  choiceTargetCell.ran_param_id = 2;
+  choiceTargetCell.ran_param_value_type.set_ran_p_choice_structure().ran_param_structure.seq_of_ran_params.resize(2);
+
+  //3, NR Cell
+  auto& nrCell = choiceTargetCell.ran_param_value_type.ran_p_choice_structure().ran_param_structure.seq_of_ran_params[0];
+  nrCell.ran_param_id = 3;
+  nrCell.ran_param_value_type.set_ran_p_choice_structure().ran_param_structure.seq_of_ran_params.resize(1);
+
+  //4, NR CGI
+  auto& nrCgi = nrCell.ran_param_value_type.ran_p_choice_structure().ran_param_structure.seq_of_ran_params[0];
+  nrCgi.ran_param_id = 4;
+  nrCgi.ran_param_value_type.set_ran_p_choice_elem_false().ran_param_value_present = true;
+  nrCgi.ran_param_value_type.set_ran_p_choice_elem_false().ran_param_value.set_value_int() = 404; // NOT FOUND
+
+  //5, E-UTRA Cell
+  auto& eutraCell = choiceTargetCell.ran_param_value_type.ran_p_choice_structure().ran_param_structure.seq_of_ran_params[1];
+  eutraCell.ran_param_id = 5;
+  eutraCell.ran_param_value_type.set_ran_p_choice_structure().ran_param_structure.seq_of_ran_params.resize(1);
+
+  //6, E-UTRA CGI
+  auto& eutraCgi = eutraCell.ran_param_value_type.ran_p_choice_structure().ran_param_structure.seq_of_ran_params[0];
+  eutraCgi.ran_param_id = 6;
+  eutraCgi.ran_param_value_type.set_ran_p_choice_elem_false().ran_param_value_present = false;
+
+  //7, List of PDU sessions for handover
+  //8, PDU session Item for handover
+  //9, PDU Session ID
+  //10,List of QoS flows in the PDU session
+  //11,QoS flow Item
+  //12,QoS Flow Identifier
+  //13,List of DRBs for handover
+  //14,DRB item for handover
+  //15,DRB ID
+  //16,List of QoS flow in the DRB
+  //17,QoS flow Item
+  //18,QoS flow Identifier
+  //19,List of Secondary cells to be setup
+  //20,Secondary cell Item to be setup
+  //21,Secondary cell ID
+
+  srsran::byte_buffer ctrl_msg_buff;
+  asn1::bit_ref       bref_msg1(ctrl_msg_buff);
+  if (ctrl_msg.pack(bref_msg1) != asn1::SRSASN_SUCCESS) {
+    logger.error("Failed to pack E2SM RC control message\n");
+  }
+
+  ret = ric_control_request->ric_ctrl_msg.resize(ctrl_msg_buff.length());
+  (void)ret;
+  std::copy(ctrl_msg_buff.begin(), ctrl_msg_buff.end(), ric_control_request->ric_ctrl_msg.begin());
+  return e2_msg;
+}
+
 inline e2_message generate_ric_control_request(srslog::basic_logger& logger,
                                                int64_t               style_type,
                                                uint64_t              action_id,
@@ -784,6 +881,18 @@ public:
       CORO_RETURN(du_mac_sched_control_config_response{true, true, true});
     });
   }
+  async_task<du_mobility_management_handover_control_config_response>
+  command_handover(du_mac_sched_control_config reconf) override
+  {
+    du_mac_sched_control_config config;
+    config = reconf;
+    return launch_async([config](coro_context<async_task<du_mobility_management_handover_control_config_response>>& ctx) {
+      CORO_BEGIN(ctx);
+      CORO_RETURN(du_mobility_management_handover_control_config_response{config.param_list.back().mobility_manager.value().nr_cgi.value().plmn_id.to_bcd(),
+                                                                          config.param_list.back().mobility_manager.value().nr_cgi.value().nci.value(),
+                                                                          true});
+    });
+  }
 };
 
 /// Fixture class for E2AP
@@ -965,10 +1074,15 @@ class e2_test_setup : public e2_test_base
     rc_param_configurator          = std::make_unique<dummy_du_configurator>();
     e2sm_rc_iface                  = std::make_unique<e2sm_rc_impl>(test_logger, *e2sm_rc_packer);
     e2sm_rc_control_service_style2 = std::make_unique<e2sm_rc_control_service>(2);
+    auto e2sm_rc_control_service_style3 = std::make_unique<e2sm_rc_control_service>(3);
     rc_control_action_2_6_executor = std::make_unique<e2sm_rc_control_action_2_6_du_executor>(*rc_param_configurator);
+    auto rc_control_action_3_1_executor = std::make_unique<e2sm_rc_control_action_3_1_du_executor>(*rc_param_configurator);
     e2sm_rc_control_service_style2->add_e2sm_rc_control_action_executor(std::move(rc_control_action_2_6_executor));
+    e2sm_rc_control_service_style3->add_e2sm_rc_control_action_executor(std::move(rc_control_action_3_1_executor));
     e2sm_rc_packer->add_e2sm_control_service(e2sm_rc_control_service_style2.get());
+    e2sm_rc_packer->add_e2sm_control_service(e2sm_rc_control_service_style3.get());
     e2sm_rc_iface->add_e2sm_control_service(std::move(e2sm_rc_control_service_style2));
+    e2sm_rc_iface->add_e2sm_control_service(std::move(e2sm_rc_control_service_style3));
     e2sm_mngr = std::make_unique<e2sm_manager>(test_logger);
     e2sm_mngr->add_e2sm_service("1.3.6.1.4.1.53148.1.2.2.2", std::move(e2sm_kpm_iface));
     e2sm_mngr->add_e2sm_service("1.3.6.1.4.1.53148.1.1.2.3", std::move(e2sm_rc_iface));

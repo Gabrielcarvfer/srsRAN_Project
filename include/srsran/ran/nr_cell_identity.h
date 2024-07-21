@@ -36,9 +36,8 @@ namespace srsran {
 /// Sector ID.
 class nr_cell_identity
 {
-  constexpr nr_cell_identity(uint64_t val_) : val(val_) {}
-
 public:
+  constexpr nr_cell_identity(uint64_t val_) : val(val_) {}
   static constexpr nr_cell_identity min() { return nr_cell_identity{0x0}; }
   static constexpr nr_cell_identity max() { return nr_cell_identity{((uint64_t)1U << 36U) - 1U}; }
 

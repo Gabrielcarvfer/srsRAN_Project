@@ -24,9 +24,15 @@
 
 #include "srsran/adt/optional.h"
 #include "srsran/ran/rrm.h"
+#include "srsran/cu_cp/cu_cp_types.h"
 #include "srsran/support/async/async_task.h"
 
 namespace srsran {
+
+
+struct mobility_management_params {
+  std::optional<nr_cell_global_id_t> nr_cgi;
+};
 
 struct control_config_params {
   // Sets the number of HARQ processes to be used.
@@ -35,6 +41,8 @@ struct control_config_params {
   std::optional<unsigned> num_harq_retransmissions;
   // Set the radio resource management policy.
   std::optional<rrm_policy_ratio_group> rrm_policy_group;
+  // Set the target handover cell
+  std::optional<mobility_management_params> mobility_manager;
 };
 
 struct du_mac_sched_control_config {
@@ -48,6 +56,12 @@ struct du_mac_sched_control_config_response {
   bool max_prb_alloc_result;
 };
 
+struct du_mobility_management_handover_control_config_response {
+  uint32_t target_plmnid;
+  uint64_t target_nci;
+  bool accepted;
+};
+
 class du_configurator
 {
 public:
@@ -55,6 +69,8 @@ public:
 
   virtual async_task<du_mac_sched_control_config_response>
   configure_ue_mac_scheduler(du_mac_sched_control_config reconf) = 0;
+  virtual async_task<du_mobility_management_handover_control_config_response>
+  command_handover(du_mac_sched_control_config reconf) = 0;
 };
 
 } // namespace srsran

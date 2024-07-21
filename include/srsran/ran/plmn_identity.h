@@ -168,10 +168,10 @@ private:
 /// Identifier of a Public Land Mobile Network (PLMN).
 class plmn_identity
 {
+public:
   constexpr plmn_identity(uint32_t bcd_plmn) : data(bcd_plmn) {}
   plmn_identity(uint16_t bcd_mcc, uint16_t bcd_mnc) { bcd_helper::ngap_mccmnc_to_plmn(bcd_mcc, bcd_mnc, &data); }
 
-public:
   /// Test value for PLMN identity "00101".
   static constexpr plmn_identity test_value() { return plmn_identity{0xf110}; }
 

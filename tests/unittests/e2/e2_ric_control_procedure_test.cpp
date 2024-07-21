@@ -61,6 +61,38 @@ TEST_F(e2_test_setup, ric_control_procedure_setup2)
   ASSERT_EQ(ack->ran_function_id, 3);
 }
 
+TEST_F(e2_test_setup, ric_control_procedure_setup_3_1_m)
+{
+  e2_message request_msg = generate_ric_control_request_style3_action1(test_logger);
+  e2->handle_message(request_msg);
+  asn1::cbit_ref bref(gw->last_pdu);
+  e2_message     msg = {};
+  if (msg.pdu.unpack(bref) != asn1::SRSASN_SUCCESS) {
+    printf("Couldn't unpack E2 PDU");
+  }
+  ASSERT_EQ(msg.pdu.type().value, asn1::e2ap::e2ap_pdu_c::types_opts::successful_outcome);
+  ASSERT_EQ(msg.pdu.successful_outcome().value.type(),
+            asn1::e2ap::e2ap_elem_procs_o::successful_outcome_c::types_opts::ric_ctrl_ack);
+  auto ack = msg.pdu.successful_outcome().value.ric_ctrl_ack();
+  ASSERT_EQ(ack->ran_function_id, 3);
+}
+
+TEST_F(e2_test_setup, ric_control_procedure_setup3_1_s)
+{
+  e2_message request_msg = generate_ric_control_request(test_logger, 3, 1, 4, 2); // gnb cellid 2
+  e2->handle_message(request_msg);
+  asn1::cbit_ref bref(gw->last_pdu);
+  e2_message     msg = {};
+  if (msg.pdu.unpack(bref) != asn1::SRSASN_SUCCESS) {
+    printf("Couldn't unpack E2 PDU");
+  }
+  ASSERT_EQ(msg.pdu.type().value, asn1::e2ap::e2ap_pdu_c::types_opts::successful_outcome);
+  ASSERT_EQ(msg.pdu.successful_outcome().value.type(),
+            asn1::e2ap::e2ap_elem_procs_o::successful_outcome_c::types_opts::ric_ctrl_ack);
+  auto ack = msg.pdu.successful_outcome().value.ric_ctrl_ack();
+  ASSERT_EQ(ack->ran_function_id, 3);
+}
+
 TEST_F(e2_test_setup, ric_control_procedure_fail)
 {
   e2_message request_msg = generate_ric_control_request(test_logger, 2, 6, 1, 12);
