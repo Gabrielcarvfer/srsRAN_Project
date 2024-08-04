@@ -273,7 +273,7 @@ inline e2_message generate_ric_control_request_style3_action1(srslog::basic_logg
   auto& nrCgi = nrCell.ran_param_value_type.ran_p_choice_structure().ran_param_structure.seq_of_ran_params[0];
   nrCgi.ran_param_id = 4;
   nrCgi.ran_param_value_type.set_ran_p_choice_elem_false().ran_param_value_present = true;
-  nrCgi.ran_param_value_type.set_ran_p_choice_elem_false().ran_param_value.set_value_int() = 404; // NOT FOUND
+  nrCgi.ran_param_value_type.set_ran_p_choice_elem_false().ran_param_value.set_value_int() = 2;
 
   //5, E-UTRA Cell
   auto& eutraCell = choiceTargetCell.ran_param_value_type.ran_p_choice_structure().ran_param_structure.seq_of_ran_params[1];

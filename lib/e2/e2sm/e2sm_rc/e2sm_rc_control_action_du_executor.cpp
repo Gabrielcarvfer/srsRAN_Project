@@ -426,9 +426,9 @@ e2sm_rc_control_action_3_1_du_executor::execute_ric_control_action(const e2sm_ri
   return launch_async(
       [this, ctrl_config = std::move(ctrl_config)](coro_context<async_task<e2sm_ric_control_response>>& ctx) {
         CORO_BEGIN(ctx);
-        du_mobility_management_handover_control_config_response ctrl_response;//todo: begin handover
+        du_mobility_management_handover_control_config_response ctrl_response;
         CORO_AWAIT_VALUE(ctrl_response, du_param_configurator.command_handover(ctrl_config));
-        e2sm_ric_control_response e2_resp = convert_to_e2sm_response(ctrl_config, ctrl_response); //todo: convert response to e2sm
+        e2sm_ric_control_response e2_resp = convert_to_e2sm_response(ctrl_config, ctrl_response);
         CORO_RETURN(e2_resp);
       });
 };
@@ -480,21 +480,13 @@ e2sm_ric_control_response e2sm_rc_control_action_3_1_du_executor::convert_to_e2s
 
   // TODO: fill outcome properly
   control_config_params req = du_config_req_.param_list[0];
-  if (req.rrm_policy_group.has_value()) {
-    e2sm_rc_ctrl_outcome_format1_item_s min_prb_outcome;
-    min_prb_outcome.ran_param_id = 10;
-    if (req.rrm_policy_group.value().min_prb_policy_ratio.has_value()) {
-      min_prb_outcome.ran_param_value.set_value_int() = req.rrm_policy_group.value().min_prb_policy_ratio.value();
-      ctrl_outcome.ran_p_list.push_back(min_prb_outcome);
-    }
-  }
-
-  if (req.rrm_policy_group.has_value()) {
-    e2sm_rc_ctrl_outcome_format1_item_s max_prb_outcome;
-    max_prb_outcome.ran_param_id = 11;
-    if (req.rrm_policy_group.value().max_prb_policy_ratio.has_value()) {
-      max_prb_outcome.ran_param_value.set_value_int() = req.rrm_policy_group.value().max_prb_policy_ratio.value();
-      ctrl_outcome.ran_p_list.push_back(max_prb_outcome);
+  if (req.mobility_manager.has_value()) {
+    e2sm_rc_ctrl_outcome_format1_item_s handover_outcome;
+    handover_outcome.ran_param_id = 4;
+    if (req.mobility_manager.value().nr_cgi.has_value()) {
+      handover_outcome.ran_param_value.set_value_int() = (uint64_t)(req.mobility_manager.value().nr_cgi.value().plmn_id.to_bcd()) << 36
+                                                          | (req.mobility_manager.value().nr_cgi.value().nci.value() & 0x0FFFFFFF);
+      ctrl_outcome.ran_p_list.push_back(handover_outcome);
     }
   }
 
