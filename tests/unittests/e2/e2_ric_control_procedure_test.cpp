@@ -70,10 +70,10 @@ TEST_F(e2_test_setup, ric_control_procedure_setup_3_1_m)
   if (msg.pdu.unpack(bref) != asn1::SRSASN_SUCCESS) {
     printf("Couldn't unpack E2 PDU");
   }
-  ASSERT_EQ(msg.pdu.type().value, asn1::e2ap::e2ap_pdu_c::types_opts::successful_outcome);
-  ASSERT_EQ(msg.pdu.successful_outcome().value.type(),
+  ASSERT_EQ(msg.pdu.type().value, asn1::e2ap::e2ap_pdu_c::types_opts::unsuccessful_outcome);
+  ASSERT_EQ(msg.pdu.unsuccessful_outcome().value.type(),
             asn1::e2ap::e2ap_elem_procs_o::successful_outcome_c::types_opts::ric_ctrl_ack);
-  auto ack = msg.pdu.successful_outcome().value.ric_ctrl_ack();
+  auto ack = msg.pdu.unsuccessful_outcome().value.ric_ctrl_fail();
   ASSERT_EQ(ack->ran_function_id, 3);
 }
 
