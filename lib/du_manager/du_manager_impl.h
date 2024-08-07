@@ -75,6 +75,8 @@ public:
   async_task<du_mac_sched_control_config_response>
   configure_ue_mac_scheduler(srsran::du_mac_sched_control_config reconf) override;
 
+  async_task<du_mobility_management_handover_control_config_response>
+  command_handover(du_mac_sched_control_config reconf) override;
 private:
   // DU manager configuration that will be visible to all running procedures
   du_manager_params     params;

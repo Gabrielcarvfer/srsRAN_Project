@@ -24,6 +24,8 @@
 #include "procedures/du_stop_procedure.h"
 #include "procedures/du_ue_ric_configuration_procedure.h"
 #include "procedures/initial_du_setup_procedure.h"
+#include "procedures/du_ue_ric_handover_command.h"
+
 #include <condition_variable>
 #include <future>
 #include <thread>
@@ -208,4 +210,10 @@ async_task<du_mac_sched_control_config_response>
 du_manager_impl::configure_ue_mac_scheduler(du_mac_sched_control_config reconf)
 {
   return launch_async<srs_du::du_ue_ric_configuration_procedure>(reconf, ue_mng, params);
+}
+
+async_task<du_mobility_management_handover_control_config_response>
+du_manager_impl::command_handover(du_mac_sched_control_config reconf)
+{
+  return launch_async<srs_du::du_ue_ric_handover_command>(reconf, ue_mng, params);
 }
